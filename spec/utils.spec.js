@@ -107,7 +107,7 @@ describe("formatDates", () => {
   });
 });
 
-describe.only("makeRefObj", () => {
+describe("makeRefObj", () => {
   it("returns empty object when empty array is passed", () => {
     const inputArr = [];
     const actualResult = makeRefObj(inputArr);
@@ -127,7 +127,7 @@ describe.only("makeRefObj", () => {
       }
     ];
     const actualResult = makeRefObj(inputArr);
-    const expectedResult = { 1: "Running a Node App" };
+    const expectedResult = { "Running a Node App": 1 };
     expect(actualResult).to.deep.equal(expectedResult);
   });
   it("returns object with multiple key-value pairs when array of length greater than one is passed", () => {
@@ -163,9 +163,9 @@ describe.only("makeRefObj", () => {
     ];
     const actualResult = makeRefObj(inputArr);
     const expectedResult = {
-      1: "Running a Node App",
-      5: "The Rise Of Thinking Machines: How IBM's Watson Takes On The World",
-      13: "22 Amazing open source React projects"
+      "Running a Node App": 1,
+      "The Rise Of Thinking Machines: How IBM's Watson Takes On The World": 5,
+      "22 Amazing open source React projects": 13
     };
     expect(actualResult).to.deep.equal(expectedResult);
   });
@@ -206,4 +206,100 @@ describe.only("makeRefObj", () => {
   });
 });
 
-describe("formatComments", () => {});
+describe("formatComments", () => {
+  it("returns empty array when empty array is passed", () => {
+    const inputArr = [];
+    const actualResult = formatComments(inputArr);
+    const expectedResult = [];
+    expect(actualResult).to.deep.equal(expectedResult);
+  });
+  it("returns correctly formatted array of length one when array of length one is passed", () => {
+    const refObj = { "A BRIEF HISTORY OF FOOD—NO BIG DEAL": 1 };
+    const inputArr = [
+      {
+        body:
+          "Corporis magnam placeat quia nulla illum nisi. Provident magni aut et earum illo labore aperiam. Dolorem ipsum dignissimos est ex. Minima voluptatibus nihil commodi veritatis. Magnam aut suscipit dignissimos nostrum ea.",
+        belongs_to: "A BRIEF HISTORY OF FOOD—NO BIG DEAL",
+        created_by: "weegembump",
+        votes: 3,
+        created_at: 1504946266488
+      }
+    ];
+    const actualResult = formatComments(inputArr, refObj);
+    const expectedResult = [
+      {
+        author: "weegembump",
+        article_id: 1,
+        votes: 3,
+        created_at: new Date(1504946266488),
+        body:
+          "Corporis magnam placeat quia nulla illum nisi. Provident magni aut et earum illo labore aperiam. Dolorem ipsum dignissimos est ex. Minima voluptatibus nihil commodi veritatis. Magnam aut suscipit dignissimos nostrum ea."
+      }
+    ];
+    expect(actualResult).to.deep.equal(expectedResult);
+  });
+  it(
+    "returns correctly formatted array of length greater than one when array of length greater than one is passed",
+    () => {
+      const refObj = {
+        "A BRIEF HISTORY OF FOOD—NO BIG DEAL": 1,
+        "Which current Premier League manager was the best player": 7,
+        "Who are the most followed clubs and players on Instagram?": 11
+      };
+      const inputArr = [
+        {
+          body:
+            "Corporis magnam placeat quia nulla illum nisi. Provident magni aut et earum illo labore aperiam. Dolorem ipsum dignissimos est ex. Minima voluptatibus nihil commodi veritatis. Magnam aut suscipit dignissimos nostrum ea.",
+          belongs_to: "A BRIEF HISTORY OF FOOD—NO BIG DEAL",
+          created_by: "weegembump",
+          votes: 3,
+          created_at: 1504946266488
+        },
+
+        {
+          body:
+            "Delectus nostrum autem. Dolore est id veniam maxime aliquid omnis nam cupiditate consequatur. Eveniet similique et voluptatem voluptatem illo. Quam officiis aut molestias hic est omnis. Dolor enim dolores. Quo explicabo reprehenderit reprehenderit nostrum magni in.",
+          belongs_to:
+            "Which current Premier League manager was the best player?",
+          created_by: "grumpy19",
+          votes: -3,
+          created_at: 1470630851218
+        },
+        {
+          body:
+            "Reiciendis enim soluta a sed cumque dolor quia quod sint. Laborum tempore est et quisquam dolore. Qui voluptas consequatur cumque neque et laborum unde sed. Impedit et consequatur tempore dignissimos earum distinctio cupiditate.",
+          belongs_to:
+            "Who are the most followed clubs and players on Instagram?",
+          created_by: "happyamy2016",
+          votes: 17,
+          created_at: 1489789669732
+        }
+      ];
+      const actualResult = formatComments(inputArr, refObj);
+      const expectedResult = {
+        author: "weegembump",
+        article_id: 1,
+        votes: 3,
+        created_at: new Date(1504946266488),
+        body:
+          "Corporis magnam placeat quia nulla illum nisi. Provident magni aut et earum illo labore aperiam. Dolorem ipsum dignissimos est ex. Minima voluptatibus nihil commodi veritatis. Magnam aut suscipit dignissimos nostrum ea."
+      };
+    },
+    {
+      author: "grumpy19",
+      article_id: 7,
+      votes: -3,
+      created_at: new Date(1470630851218),
+      body:
+        "Delectus nostrum autem. Dolore est id veniam maxime aliquid omnis nam cupiditate consequatur. Eveniet similique et voluptatem voluptatem illo. Quam officiis aut molestias hic est omnis. Dolor enim dolores. Quo explicabo reprehenderit reprehenderit nostrum magni in."
+    },
+    {
+      author: "happyamy2016",
+      article_id: 11,
+      votes: 17,
+      created_at: new Date(1489789669732),
+      body:
+        "Reiciendis enim soluta a sed cumque dolor quia quod sint. Laborum tempore est et quisquam dolore. Qui voluptas consequatur cumque neque et laborum unde sed. Impedit et consequatur tempore dignissimos earum distinctio cupiditate."
+    }
+  );
+});
