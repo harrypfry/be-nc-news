@@ -107,6 +107,103 @@ describe("formatDates", () => {
   });
 });
 
-describe("makeRefObj", () => {});
+describe.only("makeRefObj", () => {
+  it("returns empty object when empty array is passed", () => {
+    const inputArr = [];
+    const actualResult = makeRefObj(inputArr);
+    const expectedResult = {};
+    expect(actualResult).to.deep.equal(expectedResult);
+  });
+  it("returns object with one key-value pair when array of length one is passed", () => {
+    const inputArr = [
+      {
+        article_id: 1,
+        title: "Running a Node App",
+        body:
+          "This is part two of a series on how to get up and running with Systemd and Node.js. This part dives deeper into how to successfully run your app with systemd long-term, and how to set it up in a production environment.",
+        votes: 0,
+        topic: "coding",
+        author: "jessjelly"
+      }
+    ];
+    const actualResult = makeRefObj(inputArr);
+    const expectedResult = { 1: "Running a Node App" };
+    expect(actualResult).to.deep.equal(expectedResult);
+  });
+  it("returns object with multiple key-value pairs when array of length greater than one is passed", () => {
+    const inputArr = [
+      {
+        article_id: 1,
+        title: "Running a Node App",
+        body:
+          "This is part two of a series on how to get up and running with Systemd and Node.js. This part dives deeper into how to successfully run your app with systemd long-term, and how to set it up in a production environment.",
+        votes: 0,
+        topic: "coding",
+        author: "jessjelly"
+      },
+      {
+        article_id: 5,
+        title:
+          "The Rise Of Thinking Machines: How IBM's Watson Takes On The World",
+        body:
+          "Many people know Watson as the IBM-developed cognitive super computer that won the Jeopardy! gameshow in 2011. In truth, Watson is not actually a computer but a set of algorithms and APIs, and since winning TV fame (and a $1 million prize) IBM has put it to use tackling tough problems in every industry from healthcare to finance. Most recently, IBM has announced several new partnerships which aim to take things even further, and put its cognitive capabilities to use solving a whole new range of problems around the world.",
+        votes: 0,
+        topic: "coding",
+        author: "jessjelly"
+      },
+      {
+        article_id: 13,
+        title: "22 Amazing open source React projects",
+        body:
+          "This is a collection of open source apps built with React.JS library. In this observation, we compared nearly 800 projects to pick the top 22. (React Native: 11, React: 11). To evaluate the quality, Mybridge AI considered a variety of factors to determine how useful the projects are for programmers. To give you an idea on the quality, the average number of Github stars from the 22 projects was 1,681.",
+        votes: 0,
+        topic: "coding",
+        author: "happyamy2016"
+      }
+    ];
+    const actualResult = makeRefObj(inputArr);
+    const expectedResult = {
+      1: "Running a Node App",
+      5: "The Rise Of Thinking Machines: How IBM's Watson Takes On The World",
+      13: "22 Amazing open source React projects"
+    };
+    expect(actualResult).to.deep.equal(expectedResult);
+  });
+  it("the input array should not be mutated", () => {
+    const inputArr = [
+      {
+        article_id: 1,
+        title: "Running a Node App",
+        body:
+          "This is part two of a series on how to get up and running with Systemd and Node.js. This part dives deeper into how to successfully run your app with systemd long-term, and how to set it up in a production environment.",
+        votes: 0,
+        topic: "coding",
+        author: "jessjelly"
+      },
+      {
+        article_id: 5,
+        title:
+          "The Rise Of Thinking Machines: How IBM's Watson Takes On The World",
+        body:
+          "Many people know Watson as the IBM-developed cognitive super computer that won the Jeopardy! gameshow in 2011. In truth, Watson is not actually a computer but a set of algorithms and APIs, and since winning TV fame (and a $1 million prize) IBM has put it to use tackling tough problems in every industry from healthcare to finance. Most recently, IBM has announced several new partnerships which aim to take things even further, and put its cognitive capabilities to use solving a whole new range of problems around the world.",
+        votes: 0,
+        topic: "coding",
+        author: "jessjelly"
+      },
+      {
+        article_id: 13,
+        title: "22 Amazing open source React projects",
+        body:
+          "This is a collection of open source apps built with React.JS library. In this observation, we compared nearly 800 projects to pick the top 22. (React Native: 11, React: 11). To evaluate the quality, Mybridge AI considered a variety of factors to determine how useful the projects are for programmers. To give you an idea on the quality, the average number of Github stars from the 22 projects was 1,681.",
+        votes: 0,
+        topic: "coding",
+        author: "happyamy2016"
+      }
+    ];
+    const inputArrCopy = [...inputArr];
+    makeRefObj(inputArr);
+    expect(inputArrCopy).to.deep.equal(inputArr);
+  });
+});
 
 describe("formatComments", () => {});
