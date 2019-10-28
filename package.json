@@ -4,6 +4,10 @@
   "description": "bc-nc-news",
   "main": "index.js",
   "scripts": {
+    "migrate-latest": "knex migrate:latest",
+    "migrate-make": "knex migrate:make",
+    "migrate-rollback": "knex migrate:rollback",
+    "migrate-reset": "npm run migrate-rollback && npm run migrate-latest",
     "setup-dbs": "psql -f ./db/setup.sql",
     "seed": "knex seed:run",
     "test-utils": "mocha spec/utils.spec.js",
@@ -21,7 +25,8 @@
   },
   "homepage": "https://github.com/northcoders/be-nc-news#readme",
   "dependencies": {
-    "knex": "^0.20.0"
+    "knex": "^0.20.0",
+    "pg": "^7.12.1"
   },
   "devDependencies": {}
 }
