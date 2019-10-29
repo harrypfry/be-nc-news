@@ -1,7 +1,7 @@
 const { selectAllTopics } = require("../models/topic-model");
 
-const getAllTopics = (req, res, next) => {
-  selectAllTopics().then(a => res.send(a));
+exports.getAllTopics = (req, res, next) => {
+  selectAllTopics().then(topics => res.status(200).send(topics));
 };
 
-module.exports = { getAllTopics };
+// module.exports = { getAllTopics };
