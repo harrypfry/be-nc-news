@@ -1,12 +1,5 @@
-// exports.handleUser404 = (req, res, send) => {
-//   res.send(404).then(body => {
-//     res.body = "Error - user not found";
-//   });
-// };
-
 exports.customErrors = (err, req, res, next) => {
-  // console.log("Harry", err);
-  if (err) {
+  if (err.status) {
     res.status(err.status).send(err);
   } else {
     next(err);
@@ -14,9 +7,16 @@ exports.customErrors = (err, req, res, next) => {
 };
 
 exports.psqlErrors = (err, req, res, next) => {
-  console.log("In psql errors");
+  switch (err.code) {
+    case "22P02":
+      res.status(400).send({ msg: "Error: Invalid ID" });
+      break;
+
+    default:
+      next(err);
+  }
 };
 
 exports.send405 = (req, res, next) => {
-  res.status(405).send({ msg: "Error: method not allowed" });
+  res.status(405).send({ msg: "Error: Method not allowed" });
 };

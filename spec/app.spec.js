@@ -32,7 +32,7 @@ describe("/api", () => {
           .post("/api/topics")
           .expect(405)
           .then(({ body: { msg } }) => {
-            expect(msg).to.equal("Error: method not allowed");
+            expect(msg).to.equal("Error: Method not allowed");
           });
       });
     });
@@ -53,13 +53,13 @@ describe("/api", () => {
           .get("/api/users/icellusedkars")
           .expect(200)
           .then(({ body }) => {
-            expect(body).to.have.keys(["username", "name", "avatar_url"]);
+            expect(body).to.contain.keys(["username", "name", "avatar_url"]);
           });
       });
     });
 
     describe("ERRORS", () => {
-      it.only("GET 404: User not found", () => {
+      it("GET 404: User not found", () => {
         return request(app)
           .get("/api/users/harryfry")
           .expect(404)
@@ -72,7 +72,7 @@ describe("/api", () => {
           .delete("/api/users/butter_bridge")
           .expect(405)
           .then(({ body: { msg } }) => {
-            expect(msg).to.equal("Error: method not allowed");
+            expect(msg).to.equal("Error: Method not allowed");
           });
       });
     });
@@ -91,25 +91,42 @@ describe("/api", () => {
           .get("/api/articles/3")
           .expect(200)
           .then(({ body }) =>
-            expect(body).to.have.keys([
-              "article_id",
-              "title",
-              "body",
-              "votes",
-              "topic",
+            expect(body).to.contain.keys([
               "author",
-              "created_at"
+              "title",
+              "article_id",
+              "body",
+              "topic",
+              "created_at",
+              "votes",
+              "comment_count"
             ])
           );
       });
     });
     describe("ERRORS:", () => {
-      it.only("GET 404: Article not found", () => {
+      it("GET 404: Article not found", () => {
         return request(app)
           .get("/api/articles/384")
           .expect(404)
           .then(({ body: { msg } }) => {
-            // console.log(msg);
+            expect(msg).to.equal("Error: Article not found");
+          });
+      });
+      it("DELETE 405: Method not allowed", () => {
+        return request(app)
+          .delete("/api/articles/2")
+          .expect(405)
+          .then(({ body: { msg } }) => {
+            expect(msg).to.equal("Error: Method not allowed");
+          });
+      });
+      it("GET 400: Invalid ID", () => {
+        return request(app)
+          .get("/api/articles/northcoders")
+          .expect(400)
+          .then(({ body: { msg } }) => {
+            expect(msg).to.equal("Error: Invalid ID");
           });
       });
     });
