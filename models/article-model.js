@@ -20,3 +20,19 @@ exports.selectArticleById = ({ article_id }) => {
       }
     });
 };
+
+exports.updateArticleById = (article_id, { inc_votes }) => {
+  return connection
+    .select("*")
+    .from("articles")
+    .where(article_id)
+    .increment({ votes: inc_votes })
+    .returning("*")
+    .then(([article]) => {
+      if (!article) {
+        return Promise.reject({ status: 404, msg: "Error: ID not found" });
+      } else {
+        return article;
+      }
+    });
+};
