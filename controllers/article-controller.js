@@ -1,7 +1,8 @@
 const {
   selectArticleById,
   updateArticleById,
-  insertCommentByArticle
+  insertCommentOnArticle,
+  selectCommentsByArticle
 } = require("../models/article-model");
 
 exports.getArticleById = (req, res, next) => {
@@ -20,8 +21,16 @@ exports.patchArticleById = (req, res, next) => {
     .catch(next);
 };
 
-exports.postCommentByArticle = (req, res, next) => {
-  insertCommentByArticle(req.params, req.body).then(([comment]) => {
+exports.postCommentOnArticle = (req, res, next) => {
+  insertCommentOnArticle(req.params, req.body).then(([comment]) => {
     res.status(201).send(comment);
   });
+};
+
+exports.getCommentsByArticle = (req, res, next) => {
+  selectCommentsByArticle(req.params)
+    .then(comments => {
+      res.status(200).send(comments);
+    })
+    .catch(next);
 };

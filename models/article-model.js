@@ -37,7 +37,7 @@ exports.updateArticleById = (article_id, { inc_votes }) => {
     });
 };
 
-exports.insertCommentByArticle = ({ article_id }, comment) => {
+exports.insertCommentOnArticle = ({ article_id }, comment) => {
   const commentObj = {
     article_id,
     body: comment.body,
@@ -45,4 +45,31 @@ exports.insertCommentByArticle = ({ article_id }, comment) => {
   };
 
   return connection("comments").insert(commentObj, "*");
+};
+
+exports.selectCommentsByArticle = ({ article_id }) => {
+  const articleExistsBool = checkArticleExists(article_id);
+
+  // console.log(articleExistsBool);
+  Promise.all([articleExistsBool]).then(a => {
+    console.log(a);
+  });
+
+  // console.log(articleExists/);
+  // return connection("comments")
+  //   .select("*")
+  //   .where(article_id)
+  //   .then(([comment]) => {
+  //     if (comment) {
+  //       return comment;
+  //     } else {
+  //       return Promise.reject({ status: 404, msg: "Error: Article not found" });
+  //     }
+  //   });
+};
+
+const checkArticleExists = article_id => {
+  return connection("articles")
+    .select("*")
+    .where({ article_id });
 };

@@ -270,5 +270,75 @@ describe("/api", () => {
           });
       });
     });
+
+    describe("GET:", () => {
+      it("200: Get request reponds with status code 200", () => {
+        return request(app)
+          .get("/api/articles/5/comments")
+          .expect(200);
+      });
+      it("200: Get request returns an array", () => {
+        return request(app)
+          .get("/api/articles/5/comments")
+          .expect(200)
+          .then(({ body }) => {
+            expect(body).to.be.an("array");
+          });
+      });
+      it("200: Array returned from get request has correct keys", () => {
+        return request(app)
+          .get("/api/articles/5/comments")
+          .expect(200)
+          .then(({ body }) =>
+            expect(body[0]).to.contain.keys([
+              "comment_id",
+              "author",
+              "article_id",
+              "votes",
+              "created_at",
+              "body"
+            ])
+          );
+      });
+      it.only("200: Array of length 0 return when request is correct, but article has no comments", () => {
+        return request(app)
+          .get("/api/articles/53453/comments")
+          .expect(200)
+          .then(({ body: { msg } }) => {
+            expect(msg).to.deep.equal([]);
+          });
+      });
+      describe("GET ERRORS:", () => {
+        it("400: Invalid article ID", () => {
+          return request(app)
+            .get("/api/articles/banana/comments")
+            .expect(400)
+            .then(({ body: { msg } }) => {
+              expect(msg).to.equal(
+                'invalid input syntax for type integer: "banana"'
+              );
+            });
+        });
+        it("404: Article not found", () => {
+          return request(app)
+            .get("/api/articles/5345/comments")
+            .expect(404)
+            .then(({ body: { msg } }) => {
+              expect(msg).to.equal("Error: Article not found");
+            });
+        });
+      });
+    });
+
+    describe("GENERAL ERRORS:", () => {
+      it("DELETE 405: Method not allowed", () => {
+        return request(app)
+          .delete("/api/articles/:article_id/comments")
+          .expect(405)
+          .then(({ body: { msg } }) => {
+            expect(msg).to.equal("Error: Method not allowed");
+          });
+      });
+    });
   });
 });
