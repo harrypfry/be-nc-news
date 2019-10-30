@@ -34,27 +34,15 @@ exports.formatComments = (comments, articleRef) => {
   return outputArr;
 };
 
-/*
-
-{
-
-createdby
-refObj
-votes
-created_at
-body
-
-}
-
-//{
-//   body: 'Corporis magnam placeat quia nulla illum nisi. Provident magni aut et earum illo labore aperiam. Dolorem ipsum dignissimos est ex. Minima voluptatibus nihil commodi veritatis. Magnam aut suscipit dignissimos nostrum ea.',
-//   belongs_to: 'A BRIEF HISTORY OF FOOD—NO BIG DEAL',
-//   created_by: 'weegembump',
-//   votes: 3,
-//   created_at: 1504946266488
-// },
-
-
-
-
-*/
+exports.checkArticleExists = article_id => {
+  return connection("articles")
+    .select("*")
+    .where({ article_id })
+    .then(([article]) => {
+      if (article) {
+        return true;
+      } else {
+        return false;
+      }
+    });
+};

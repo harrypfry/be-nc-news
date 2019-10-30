@@ -300,12 +300,12 @@ describe("/api", () => {
             ])
           );
       });
-      it.only("200: Array of length 0 return when request is correct, but article has no comments", () => {
+      it("200: Array of length 0 return when request is correct, but article has no comments", () => {
         return request(app)
-          .get("/api/articles/53453/comments")
+          .get("/api/articles/2/comments")
           .expect(200)
-          .then(({ body: { msg } }) => {
-            expect(msg).to.deep.equal([]);
+          .then(({ body }) => {
+            expect(body).to.deep.equal([]);
           });
       });
       describe("GET ERRORS:", () => {

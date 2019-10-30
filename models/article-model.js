@@ -1,5 +1,7 @@
 const connection = require("../db/connection");
 
+const { checkArticleExists } = require("../db/utils/utils");
+
 exports.selectArticleById = ({ article_id }) => {
   const whereObj = { "articles.article_id": article_id };
   return connection
@@ -48,28 +50,23 @@ exports.insertCommentOnArticle = ({ article_id }, comment) => {
 };
 
 exports.selectCommentsByArticle = ({ article_id }) => {
-  const articleExistsBool = checkArticleExists(article_id);
+  const articleExists = checkArticleExists(article_id);
 
-  // console.log(articleExistsBool);
-  Promise.all([articleExistsBool]).then(a => {
-    console.log(a);
-  });
-
-  // console.log(articleExists/);
-  // return connection("comments")
-  //   .select("*")
-  //   .where(article_id)
-  //   .then(([comment]) => {
-  //     if (comment) {
-  //       return comment;
-  //     } else {
-  //       return Promise.reject({ status: 404, msg: "Error: Article not found" });
-  //     }
-  //   });
-};
-
-const checkArticleExists = article_id => {
-  return connection("articles")
+  const commentPromise = connection("comments")
     .select("*")
-    .where({ article_id });
+    .where("article_id", article_id)
+    .returning("*");
+
+  return Promise.all([commentPromise, articleExists]).then(
+    ([commentPromise, articleExists]) => {
+      if (commentPromise.length || articleExists) {
+        return commentPromise;
+      } else {
+        return Promise.reject({
+          status: 404,
+          msg: "Error: Article not found"
+        });
+      }
+    }
+  );
 };
