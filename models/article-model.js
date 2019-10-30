@@ -36,3 +36,13 @@ exports.updateArticleById = (article_id, { inc_votes }) => {
       }
     });
 };
+
+exports.insertCommentByArticle = ({ article_id }, comment) => {
+  const commentObj = {
+    article_id,
+    body: comment.body,
+    author: comment.created_by
+  };
+
+  return connection("comments").insert(commentObj, "*");
+};

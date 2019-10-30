@@ -223,7 +223,6 @@ describe("/api", () => {
             .send({ inc_votes: 50 })
             .expect(404)
             .then(({ body: { msg } }) => {
-              // console.log(msg);
               expect(msg).to.equal("Error: ID not found");
             });
         });
@@ -243,9 +242,9 @@ describe("/api", () => {
   });
 
   describe("/articles/:article_id/comments", () => {
-    describe.only("POST:", () => {
+    describe("POST:", () => {
       const newComment = {
-        username: "harriusfrius",
+        created_by: "icellusedkars",
         body: "That was a rubbish article"
       };
       it("201: Post request responds with status code 201", () => {
@@ -253,6 +252,22 @@ describe("/api", () => {
           .post("/api/articles/2/comments")
           .send(newComment)
           .expect(201);
+      });
+      it("201: Post request returns posted comment", () => {
+        return request(app)
+          .post("/api/articles/2/comments")
+          .send(newComment)
+          .expect(201)
+          .then(({ body }) => {
+            expect(body).to.contain.keys([
+              "comment_id",
+              "author",
+              "article_id",
+              "votes",
+              "created_at",
+              "body"
+            ]);
+          });
       });
     });
   });
