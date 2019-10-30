@@ -4,10 +4,10 @@ app.use(express.json());
 
 const apiRouter = require("./routes/api-router");
 
-const { handle404 } = require("./errors/error");
+const { customErrors } = require("./errors/error");
 
 app.use("/api", apiRouter);
 
-// app.use(handle404);
+app.use(customErrors);
 
 module.exports = app;
