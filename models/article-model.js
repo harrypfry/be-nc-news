@@ -49,13 +49,22 @@ exports.insertCommentOnArticle = ({ article_id }, comment) => {
   return connection("comments").insert(commentObj, "*");
 };
 
-exports.selectCommentsByArticle = ({ article_id }) => {
+exports.selectCommentsByArticle = ({ article_id }, { sort_by, order }) => {
   const articleExists = checkArticleExists(article_id);
+
+  // if (order !== "asc" && order !== "desc" && order !== undefined) {
+  //   console.log("promise reject");
+  //   return Promise.reject({ status: 400, msg: "Error: invalid order" });
+  // }
+  if (!["asc", "desc", undefined].includes(order)) {
+    return Promise.reject({ status: 400, msg: "Error: invalid order" });
+  }
 
   const commentPromise = connection("comments")
     .select("*")
     .where("article_id", article_id)
-    .returning("*");
+    .returning("*")
+    .orderBy(sort_by || "created_at", order || "asc");
 
   return Promise.all([commentPromise, articleExists]).then(
     ([commentPromise, articleExists]) => {

@@ -22,13 +22,15 @@ exports.patchArticleById = (req, res, next) => {
 };
 
 exports.postCommentOnArticle = (req, res, next) => {
-  insertCommentOnArticle(req.params, req.body).then(([comment]) => {
-    res.status(201).send(comment);
-  });
+  insertCommentOnArticle(req.params, req.body)
+    .then(([comment]) => {
+      res.status(201).send(comment);
+    })
+    .catch(next);
 };
 
 exports.getCommentsByArticle = (req, res, next) => {
-  selectCommentsByArticle(req.params)
+  selectCommentsByArticle(req.params, req.query)
     .then(comments => {
       res.status(200).send(comments);
     })

@@ -7,9 +7,19 @@ exports.customErrors = (err, req, res, next) => {
 };
 
 exports.psqlErrors = (err, req, res, next) => {
+  // console.log(err);
   switch (err.code) {
     case "22P02":
       res.status(400).send({ msg: createErrorMessage(err) });
+      break;
+    case "23502":
+      res.status(400).send({ msg: createErrorMessage(err) });
+      break;
+    case "23503":
+      res.status(404).send({ msg: createErrorMessage(err) });
+      break;
+    case "42703":
+      res.status(404).send({ msg: createErrorMessage(err) });
       break;
     default:
       next(err);

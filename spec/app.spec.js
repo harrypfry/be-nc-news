@@ -1,7 +1,11 @@
 process.env.NODE_ENV = "test";
 
-const { expect } = require("chai");
 const request = require("supertest");
+
+const chai = require("chai");
+const expect = chai.expect;
+const chaiSorted = require("chai-sorted");
+chai.use(chaiSorted);
 
 const app = require("../app");
 const connection = require("../db/connection");
@@ -269,6 +273,62 @@ describe("/api", () => {
             ]);
           });
       });
+      describe("POST ERRORS:", () => {
+        it("400: Invalid ID", () => {
+          return request(app)
+            .post("/api/articles/banana/comments")
+            .send({
+              created_by: "icellusedkars",
+              body: "something interesting"
+            })
+            .expect(400)
+            .then(({ body: { msg } }) => {
+              expect(msg).to.equal(
+                'invalid input syntax for type integer: "banana"'
+              );
+            });
+        });
+        it("400: Invalid key on body", () => {
+          return request(app)
+            .post("/api/articles/2/comments")
+            .send({
+              created_by: "icellusedkars",
+              not_a_column: "something interesting"
+            })
+            .expect(400)
+            .then(({ body: { msg } }) => {
+              expect(msg).to.equal(
+                'null value in column "body" violates not-null constraint'
+              );
+            });
+        });
+        it("404: Invalid user ID", () => {
+          return request(app)
+            .post("/api/articles/2/comments")
+            .send({
+              created_by: "notAUser",
+              body: "something not so interesting"
+            })
+            .expect(404)
+            .then(({ body: { msg } }) => {
+              expect(msg).to.equal(
+                'insert or update on table "comments" violates foreign key constraint "comments_author_foreign"'
+              );
+            });
+        });
+        it("404: ID not found", () => {
+          return request(app)
+            .post("/api/articles/3324/comments")
+            .send({
+              created_by: "icellusedkars",
+              body: "this is a valid body!"
+            })
+            .expect(404)
+            .then(({ body: { msg } }) => {
+              console.log(msg);
+            });
+        });
+      });
     });
 
     describe("GET:", () => {
@@ -308,6 +368,32 @@ describe("/api", () => {
             expect(body).to.deep.equal([]);
           });
       });
+
+      it("200: Returns array sorted by votes", () => {
+        return request(app)
+          .get("/api/articles/1/comments?sort_by=votes")
+          .expect(200)
+          .then(({ body }) => {
+            expect(body).to.be.ascendingBy("votes");
+          });
+      });
+      it("200: Returns array sorted by created_at & ascending by default", () => {
+        return request(app)
+          .get("/api/articles/1/comments")
+          .expect(200)
+          .then(({ body }) => {
+            expect(body).to.be.ascendingBy("created_at");
+          });
+      });
+      it("200: Returns array sorted by votes at in descending order", () => {
+        return request(app)
+          .get("/api/articles/1/comments?sort_by=votes&order=desc")
+          .expect(200)
+          .then(({ body }) => {
+            expect(body).to.be.descendingBy("votes");
+          });
+      });
+
       describe("GET ERRORS:", () => {
         it("400: Invalid article ID", () => {
           return request(app)
@@ -325,6 +411,22 @@ describe("/api", () => {
             .expect(404)
             .then(({ body: { msg } }) => {
               expect(msg).to.equal("Error: Article not found");
+            });
+        });
+        it("404: Sort by invalid column", () => {
+          return request(app)
+            .get("/api/articles/1/comments?sort_by=notAColumn")
+            .expect(404)
+            .then(({ body: { msg } }) => {
+              expect(msg).to.equal('column "notAColumn" does not exist');
+            });
+        });
+        it("400: Sort by invalid order", () => {
+          return request(app)
+            .get("/api/articles/1/comments?sort_by=votes&order=rogueOrder")
+            .expect(400)
+            .then(({ body: { msg } }) => {
+              expect(msg).to.equal("Error: invalid order");
             });
         });
       });
