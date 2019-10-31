@@ -7,7 +7,6 @@ exports.customErrors = (err, req, res, next) => {
 };
 
 exports.psqlErrors = (err, req, res, next) => {
-  // console.log(err);
   switch (err.code) {
     case "22P02":
       res.status(400).send({ msg: createErrorMessage(err) });

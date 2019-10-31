@@ -324,9 +324,7 @@ describe("/api", () => {
               body: "this is a valid body!"
             })
             .expect(404)
-            .then(({ body: { msg } }) => {
-              console.log(msg);
-            });
+            .then(({ body: { msg } }) => {});
         });
       });
     });
@@ -413,7 +411,7 @@ describe("/api", () => {
               expect(msg).to.equal("Error: Article not found");
             });
         });
-        it("404: Sort by invalid column", () => {
+        it("404: Sort by unknown column", () => {
           return request(app)
             .get("/api/articles/1/comments?sort_by=notAColumn")
             .expect(404)
@@ -441,6 +439,266 @@ describe("/api", () => {
             expect(msg).to.equal("Error: Method not allowed");
           });
       });
+    });
+  });
+
+  describe("/articles", () => {
+    describe("GET:", () => {
+      it("200: Returns array of all articles", () => {
+        return request(app)
+          .get("/api/articles")
+          .expect(200)
+          .then(({ body }) => {
+            body.forEach(article => {
+              expect(article).to.contain.keys([
+                "author",
+                "title",
+                "article_id",
+                "topic",
+                "created_at",
+                "votes",
+                "comment_count"
+              ]);
+            });
+          });
+      });
+      it("200: Can sort by any valid column when specified", () => {
+        return request(app)
+          .get("/api/articles?sort_by=votes")
+          .expect(200)
+          .then(({ body }) => {
+            expect(body).to.be.ascendingBy("votes");
+          });
+      });
+      it("200: Sorts by date as default", () => {
+        return request(app)
+          .get("/api/articles")
+          .expect(200)
+          .then(({ body }) => {
+            expect(body).to.be.ascendingBy("created_at");
+          });
+      });
+      it("200: Sorts order is ascending by default ", () => {
+        return request(app)
+          .get("/api/articles?sort_by=votes")
+          .expect(200)
+          .then(({ body }) => {
+            expect(body).to.be.ascendingBy("votes");
+          });
+      });
+      it("200: Sort order can be specified by descending", () => {
+        return request(app)
+          .get("/api/articles?sort_by=article_id&order=desc")
+          .expect(200)
+          .then(({ body }) => {
+            expect(body).to.be.descendingBy("article_id");
+          });
+      });
+      it("200: Filter articles by author", () => {
+        return request(app)
+          .get("/api/articles?author=icellusedkars")
+          .expect(200)
+          .then(({ body }) => {
+            body.forEach(article => {
+              expect(article.author).to.equal("icellusedkars");
+            });
+          });
+      });
+      it("200: Returns empty array when author exists but hasn't written any articles", () => {
+        return request(app)
+          .get("/api/articles?author=lurker")
+          .expect(200)
+          .then(({ body }) => {
+            expect(body).to.deep.equal([]);
+          });
+      });
+      it("200: Returns empty array when topic exists but no articles assigned", () => {
+        return request(app)
+          .get("/api/articles?topic=paper")
+          .expect(200)
+          .then(({ body }) => {
+            expect(body).to.deep.equal([]);
+          });
+      });
+      it("200: Filter articles by topic", () => {
+        return request(app)
+          .get("/api/articles?topic=cats")
+          .expect(200)
+          .then(({ body }) => {
+            body.forEach(article => {
+              expect(article.topic).to.equal("cats");
+            });
+          });
+      });
+      describe("GET ERRORS:", () => {
+        it("400: Sort by invalid order", () => {
+          return request(app)
+            .get("/api/articles?order=gobbledygook")
+            .expect(400)
+            .then(({ body: { msg } }) => {
+              expect(msg).to.equal("Error: invalid order");
+            });
+        });
+        it("404: Sort by column that doesn't exist", () => {
+          return request(app)
+            .get("/api/articles?sort_by=not_a_column")
+            .expect(404)
+            .then(({ body: { msg } }) => {
+              expect(msg).to.equal('column "not_a_column" does not exist');
+            });
+        });
+        it("404: Filter by unknown author", () => {
+          return request(app)
+            .get("/api/articles?author=notANAuthor")
+            .expect(404)
+            .then(({ body: { msg } }) => {
+              expect(msg).to.equal("Error: User not found");
+            });
+        });
+        it("404: Filter by unknown topic", () => {
+          return request(app)
+            .get("/api/articles?topic=notATopic")
+            .expect(404)
+            .then(({ body: { msg } }) => {
+              expect(msg).to.equal("Error: Topic not found");
+            });
+        });
+      });
+    });
+
+    describe("GENERAL ERRORS", () => {
+      it("DELETE 405: Method not allowed", () => {
+        return request(app)
+          .delete("/api/articles")
+          .expect(405)
+          .then(({ body: { msg } }) => {
+            expect(msg).to.equal("Error: Method not allowed");
+          });
+      });
+    });
+  });
+
+  describe("/comments/:comment_id", () => {
+    describe("PATCH:", () => {
+      const votesInc = { inc_votes: 5 };
+      it("201: Patch request responds with status 201", () => {
+        return request(app)
+          .patch("/api/comments/5")
+          .send(votesInc)
+          .expect(201);
+      });
+      it("201: Patch request updates the number of votes", () => {
+        return request(app)
+          .patch("/api/comments/4")
+          .send(votesInc)
+          .expect(201)
+          .then(({ body: { votes } }) => {
+            expect(votes).to.equal(-95);
+          });
+      });
+      it("201: Patch request returns the updated comment", () => {
+        return request(app)
+          .patch("/api/comments/4")
+          .send(votesInc)
+          .expect(201)
+          .then(({ body }) => {
+            expect(body).to.contain.keys([
+              "comment_id",
+              "author",
+              "article_id",
+              "votes",
+              "created_at",
+              "body"
+            ]);
+          });
+      });
+      describe("PATCH ERRORS:", () => {
+        it("400: Invalid ID", () => {
+          return request(app)
+            .patch("/api/comments/hola")
+            .send({ inc_votes: 5 })
+            .expect(400)
+            .then(({ body: { msg } }) => {
+              expect(msg).to.equal(
+                'invalid input syntax for type integer: "hola"'
+              );
+            });
+        });
+        it("400: Invalid Key", () => {
+          return request(app)
+            .patch("/api/comments/2")
+            .send({ hastaManana: 3 })
+            .expect(400)
+            .then(({ body: { msg } }) => {
+              expect(msg).to.equal(
+                'invalid input syntax for type integer: "NaN"'
+              );
+            });
+        });
+        it("400: Invalid Value", () => {
+          return request(app)
+            .patch("/api/comments/2")
+            .send({ inc_votes: "notAnInteger" })
+            .expect(400)
+            .then(({ body: { msg } }) => {
+              expect(msg).to.equal(
+                'invalid input syntax for type integer: "NaN"'
+              );
+            });
+        });
+        it("404: Unknown ID", () => {
+          return request(app)
+            .patch("/api/comments/5243")
+            .send({ inc_votes: 5 })
+            .expect(404)
+            .then(({ body: { msg } }) => {
+              expect(msg).to.equal("Error: ID not found");
+            });
+        });
+      });
+    });
+    describe("DELETE:", () => {
+      it("204: Delete request responds with status 204", () => {
+        return request(app)
+          .delete("/api/comments/3")
+          .expect(204);
+      });
+      it("204: Returns empty object", () => {
+        return request(app)
+          .delete("/api/comments/3")
+          .expect(204)
+          .then(({ body }) => {
+            expect(body).to.deep.equal({});
+          });
+      });
+      describe("DELETE ERRORS:", () => {
+        it("400: Invalid ID", () => {
+          return request(app)
+            .delete("/api/comments/banana")
+            .expect(400)
+            .then(({ body: { msg } }) => {
+              expect(msg).to.equal(
+                'invalid input syntax for type integer: "banana"'
+              );
+            });
+        });
+        it("404: ID not found", () => {
+          return request(app)
+            .delete("/api/comments/3423")
+            .expect(404)
+            .then(({ body: { msg } }) => {
+              expect(msg).to.equal("Error:ID not found");
+            });
+        });
+      });
+    });
+    describe("GENERAL ERRORS:", () => {
+      return request(app)
+        .get("/api/comments/2")
+        .expect(405)
+        .then(({ body: { msg } }) => {
+          expect(msg).to.equal("Error: Method not allowed");
+        });
     });
   });
 });
