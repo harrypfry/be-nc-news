@@ -1,2 +1,4 @@
 node_modules
 knexfile.js
+db/utils/test.sql
+db/utils/testLog.txt
