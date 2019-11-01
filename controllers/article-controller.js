@@ -25,6 +25,7 @@ exports.patchArticleById = (req, res, next) => {
 exports.postCommentOnArticle = (req, res, next) => {
   insertCommentOnArticle(req.params, req.body)
     .then(([comment]) => {
+      // console.log(comment);
       res.status(201).send({ comment });
     })
     .catch(next);
@@ -41,7 +42,7 @@ exports.getCommentsByArticle = (req, res, next) => {
 exports.getArticles = (req, res, next) => {
   selectArticles(req.query)
     .then(articles => {
-      res.status(200).send(articles);
+      res.status(200).send({ articles });
     })
     .catch(next);
 };

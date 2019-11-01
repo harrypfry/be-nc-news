@@ -460,8 +460,8 @@ describe("/api", () => {
         return request(app)
           .get("/api/articles")
           .expect(200)
-          .then(({ body }) => {
-            body.forEach(article => {
+          .then(({ body: { articles } }) => {
+            articles.forEach(article => {
               expect(article).to.contain.keys([
                 "author",
                 "title",
@@ -478,40 +478,40 @@ describe("/api", () => {
         return request(app)
           .get("/api/articles?sort_by=votes")
           .expect(200)
-          .then(({ body }) => {
-            expect(body).to.be.ascendingBy("votes");
+          .then(({ body: { articles } }) => {
+            expect(articles).to.be.ascendingBy("votes");
           });
       });
       it("200: Sorts by date as default", () => {
         return request(app)
           .get("/api/articles")
           .expect(200)
-          .then(({ body }) => {
-            expect(body).to.be.ascendingBy("created_at");
+          .then(({ body: { articles } }) => {
+            expect(articles).to.be.ascendingBy("created_at");
           });
       });
       it("200: Sorts order is ascending by default ", () => {
         return request(app)
           .get("/api/articles?sort_by=votes")
           .expect(200)
-          .then(({ body }) => {
-            expect(body).to.be.ascendingBy("votes");
+          .then(({ body: { articles } }) => {
+            expect(articles).to.be.ascendingBy("votes");
           });
       });
       it("200: Sort order can be specified by descending", () => {
         return request(app)
           .get("/api/articles?sort_by=article_id&order=desc")
           .expect(200)
-          .then(({ body }) => {
-            expect(body).to.be.descendingBy("article_id");
+          .then(({ body: { articles } }) => {
+            expect(articles).to.be.descendingBy("article_id");
           });
       });
       it("200: Filter articles by author", () => {
         return request(app)
           .get("/api/articles?author=icellusedkars")
           .expect(200)
-          .then(({ body }) => {
-            body.forEach(article => {
+          .then(({ body: { articles } }) => {
+            articles.forEach(article => {
               expect(article.author).to.equal("icellusedkars");
             });
           });
@@ -520,24 +520,24 @@ describe("/api", () => {
         return request(app)
           .get("/api/articles?author=lurker")
           .expect(200)
-          .then(({ body }) => {
-            expect(body).to.deep.equal([]);
+          .then(({ body: { articles } }) => {
+            expect(articles).to.deep.equal([]);
           });
       });
       it("200: Returns empty array when topic exists but no articles assigned", () => {
         return request(app)
           .get("/api/articles?topic=paper")
           .expect(200)
-          .then(({ body }) => {
-            expect(body).to.deep.equal([]);
+          .then(({ body: { articles } }) => {
+            expect(articles).to.deep.equal([]);
           });
       });
       it("200: Filter articles by topic", () => {
         return request(app)
           .get("/api/articles?topic=cats")
           .expect(200)
-          .then(({ body }) => {
-            body.forEach(article => {
+          .then(({ body: { articles } }) => {
+            articles.forEach(article => {
               expect(article.topic).to.equal("cats");
             });
           });

@@ -11,7 +11,8 @@ const { send405 } = require("../errors/error");
 
 apiRouter
   .route("/")
-  .get(a => console.log(availableEndpoints))
+  //   (req,res,next)=>{res.send(availableEndpoints)}
+  .get(() => console.log(availableEndpoints))
   .all(send405);
 
 apiRouter.use("/topics", topicRouter);
