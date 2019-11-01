@@ -14,12 +14,11 @@ describe("/api", () => {
   beforeEach(() => connection.seed.run());
   after(() => connection.destroy());
 
-  xdescribe("/", () => {
+  describe("/", () => {
     it("returns all available endpoint", () => {
       return request(app)
         .get("/api")
         .expect(200);
-      // .then(() => {});
     });
   });
 
