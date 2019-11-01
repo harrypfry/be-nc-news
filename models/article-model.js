@@ -82,13 +82,11 @@ exports.updateArticleById = (article_id, body) => {
 };
 
 exports.insertCommentOnArticle = ({ article_id }, comment) => {
-  // console.log(comment);
   const commentObj = {
     article_id,
     body: comment.body,
     author: comment.username
   };
-  // console.log(commentObj);
   return connection("comments").insert(commentObj, "*");
 };
 

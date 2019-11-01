@@ -264,7 +264,7 @@ describe("/api", () => {
   });
 
   describe("/articles/:article_id/comments", () => {
-    describe.only("POST:", () => {
+    describe("POST:", () => {
       const newComment = {
         username: "icellusedkars",
         body: "That was a rubbish article"
@@ -357,8 +357,7 @@ describe("/api", () => {
         return request(app)
           .get("/api/articles/5/comments")
           .expect(200)
-          .then(({ body }) => {
-            console.log(body);
+          .then(({ body: { comments } }) => {
             expect(comments).to.be.an("array");
           });
       });
@@ -619,6 +618,22 @@ describe("/api", () => {
         return request(app)
           .patch("/api/comments/4")
           .send(votesInc)
+          .expect(200)
+          .then(({ body: { comment } }) => {
+            expect(comment).to.contain.keys([
+              "comment_id",
+              "author",
+              "article_id",
+              "votes",
+              "created_at",
+              "body"
+            ]);
+          });
+      });
+      it("200: Patch request returns original comment if no body included", () => {
+        return request(app)
+          .patch("/api/comments/4")
+          .send()
           .expect(200)
           .then(({ body: { comment } }) => {
             expect(comment).to.contain.keys([
