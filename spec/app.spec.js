@@ -280,8 +280,8 @@ describe("/api", () => {
           .post("/api/articles/2/comments")
           .send(newComment)
           .expect(201)
-          .then(({ body: { comments } }) => {
-            expect(comments).to.contain.keys([
+          .then(({ body: { comment } }) => {
+            expect(comment).to.contain.keys([
               "comment_id",
               "author",
               "article_id",

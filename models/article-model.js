@@ -51,10 +51,6 @@ exports.selectArticleById = ({ article_id }) => {
 };
 
 exports.updateArticleById = (article_id, body) => {
-  // if (!inc_votes) {
-  //   inc_votes = 0;
-  // }
-
   if (!Object.keys(body).length) {
     return connection
       .select("*")
