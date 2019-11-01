@@ -14,6 +14,15 @@ describe("/api", () => {
   beforeEach(() => connection.seed.run());
   after(() => connection.destroy());
 
+  xdescribe("/", () => {
+    it("returns all available endpoint", () => {
+      return request(app)
+        .get("/api")
+        .expect(200);
+      // .then(() => {});
+    });
+  });
+
   describe("/topics", () => {
     describe("GET:", () => {
       it("200: Get request responds with status 200", () => {
@@ -22,11 +31,13 @@ describe("/api", () => {
           .expect(200);
       });
       it("200: Return all topics", () => {
-        const expectedBody = [
-          { slug: "mitch", description: "The man, the Mitch, the legend" },
-          { slug: "cats", description: "Not dogs" },
-          { slug: "paper", description: "what books are made of" }
-        ];
+        const expectedBody = {
+          topics: [
+            { slug: "mitch", description: "The man, the Mitch, the legend" },
+            { slug: "cats", description: "Not dogs" },
+            { slug: "paper", description: "what books are made of" }
+          ]
+        };
         return request(app)
           .get("/api/topics")
           .expect(200)
@@ -58,16 +69,16 @@ describe("/api", () => {
         return request(app)
           .get("/api/users/icellusedkars")
           .expect(200)
-          .then(({ body }) => {
-            expect(body).to.be.an("object");
+          .then(({ body: { user } }) => {
+            expect(user).to.be.an("object");
           });
       });
       it("200: Returned user data has correct keys", () => {
         return request(app)
           .get("/api/users/icellusedkars")
           .expect(200)
-          .then(({ body }) => {
-            expect(body).to.contain.keys(["username", "name", "avatar_url"]);
+          .then(({ body: { user } }) => {
+            expect(user).to.contain.keys(["username", "name", "avatar_url"]);
           });
       });
       describe("GET ERRORS:", () => {
@@ -111,8 +122,8 @@ describe("/api", () => {
         return request(app)
           .get("/api/articles/3")
           .expect(200)
-          .then(({ body }) =>
-            expect(body).to.contain.keys([
+          .then(({ body: { article } }) => {
+            expect(article).to.contain.keys([
               "author",
               "title",
               "article_id",
@@ -121,8 +132,8 @@ describe("/api", () => {
               "created_at",
               "votes",
               "comment_count"
-            ])
-          );
+            ]);
+          });
       });
       describe("GET ERRORS:", () => {
         it("GET 400: Invalid Article ID", () => {
@@ -148,28 +159,28 @@ describe("/api", () => {
 
     describe("PATCH:", () => {
       const patchBody = { inc_votes: 50 };
-      it("201: Patch request responds with status 201", () => {
+      it("200: Patch request responds with status 201", () => {
         return request(app)
           .patch("/api/articles/1")
           .send(patchBody)
-          .expect(201);
+          .expect(200);
       });
-      it("201: Returned article data is an object", () => {
+      it("200: Returned article data is an object", () => {
         return request(app)
           .patch("/api/articles/1")
           .send(patchBody)
-          .expect(201)
+          .expect(200)
           .then(article => {
             expect(article).to.be.an("object");
           });
       });
-      it("201: Returned article data has correct keys", () => {
+      it("200: Returned article data has correct keys", () => {
         return request(app)
           .patch("/api/articles/1")
           .send(patchBody)
-          .expect(201)
-          .then(({ body }) => {
-            expect(body).to.contain.keys([
+          .expect(200)
+          .then(({ body: { article } }) => {
+            expect(article).to.contain.keys([
               "author",
               "title",
               "article_id",
@@ -180,12 +191,12 @@ describe("/api", () => {
             ]);
           });
       });
-      it("201: Returned article has updated vote value", () => {
+      it("200: Returned article has updated vote value", () => {
         return request(app)
           .patch("/api/articles/1")
           .send(patchBody)
-          .expect(201)
-          .then(({ body }) => expect(body.votes).to.equal(150));
+          .expect(200)
+          .then(({ body: { article } }) => expect(article.votes).to.equal(150));
       });
       describe("PATCH ERRORS:", () => {
         it("PATCH 400: Invalid ID", () => {
@@ -262,8 +273,8 @@ describe("/api", () => {
           .post("/api/articles/2/comments")
           .send(newComment)
           .expect(201)
-          .then(({ body }) => {
-            expect(body).to.contain.keys([
+          .then(({ body: { comment } }) => {
+            expect(comment).to.contain.keys([
               "comment_id",
               "author",
               "article_id",
@@ -339,16 +350,17 @@ describe("/api", () => {
         return request(app)
           .get("/api/articles/5/comments")
           .expect(200)
-          .then(({ body }) => {
-            expect(body).to.be.an("array");
+          .then(({ body: { comments } }) => {
+            // console.log(body);
+            expect(comments).to.be.an("array");
           });
       });
       it("200: Array returned from get request has correct keys", () => {
         return request(app)
           .get("/api/articles/5/comments")
           .expect(200)
-          .then(({ body }) =>
-            expect(body[0]).to.contain.keys([
+          .then(({ body: { comments } }) =>
+            expect(comments[0]).to.contain.keys([
               "comment_id",
               "author",
               "article_id",
@@ -362,8 +374,8 @@ describe("/api", () => {
         return request(app)
           .get("/api/articles/2/comments")
           .expect(200)
-          .then(({ body }) => {
-            expect(body).to.deep.equal([]);
+          .then(({ body: { comments } }) => {
+            expect(comments).to.deep.equal([]);
           });
       });
 
@@ -371,24 +383,24 @@ describe("/api", () => {
         return request(app)
           .get("/api/articles/1/comments?sort_by=votes")
           .expect(200)
-          .then(({ body }) => {
-            expect(body).to.be.ascendingBy("votes");
+          .then(({ body: { comments } }) => {
+            expect(comments).to.be.ascendingBy("votes");
           });
       });
       it("200: Returns array sorted by created_at & ascending by default", () => {
         return request(app)
           .get("/api/articles/1/comments")
           .expect(200)
-          .then(({ body }) => {
-            expect(body).to.be.ascendingBy("created_at");
+          .then(({ body: { comments } }) => {
+            expect(comments).to.be.ascendingBy("created_at");
           });
       });
       it("200: Returns array sorted by votes at in descending order", () => {
         return request(app)
           .get("/api/articles/1/comments?sort_by=votes&order=desc")
           .expect(200)
-          .then(({ body }) => {
-            expect(body).to.be.descendingBy("votes");
+          .then(({ body: { comments } }) => {
+            expect(comments).to.be.descendingBy("votes");
           });
       });
 
@@ -581,28 +593,28 @@ describe("/api", () => {
   describe("/comments/:comment_id", () => {
     describe("PATCH:", () => {
       const votesInc = { inc_votes: 5 };
-      it("201: Patch request responds with status 201", () => {
+      it("200: Patch request responds with status 200", () => {
         return request(app)
           .patch("/api/comments/5")
           .send(votesInc)
-          .expect(201);
+          .expect(200);
       });
-      it("201: Patch request updates the number of votes", () => {
+      it("200: Patch request updates the number of votes", () => {
         return request(app)
           .patch("/api/comments/4")
           .send(votesInc)
-          .expect(201)
-          .then(({ body: { votes } }) => {
+          .expect(200)
+          .then(({ body: { comment: { votes } } }) => {
             expect(votes).to.equal(-95);
           });
       });
-      it("201: Patch request returns the updated comment", () => {
+      it("200: Patch request returns the updated comment", () => {
         return request(app)
           .patch("/api/comments/4")
           .send(votesInc)
-          .expect(201)
-          .then(({ body }) => {
-            expect(body).to.contain.keys([
+          .expect(200)
+          .then(({ body: { comment } }) => {
+            expect(comment).to.contain.keys([
               "comment_id",
               "author",
               "article_id",

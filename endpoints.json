@@ -1,7 +1,4 @@
 {
-  "GET /api": {
-    "description": "serves up a json representation of all the available endpoints of the api"
-  },
   "GET /api/topics": {
     "description": "serves an array of all topics",
     "queries": [],
@@ -9,8 +6,22 @@
       "topics": [{ "slug": "football", "description": "Footie!" }]
     }
   },
+
+  "GET /api/users/:username": {
+    "description": "serves an object of specified username",
+    "queries": [],
+    "exampleResponse": {
+      "username": "icellusedkars",
+      "avatar_url": "www.dfs.com",
+      "name": "dfs"
+    }
+  },
+
+  "GET /api": {
+    "description": "serves up a json representation of all the available endpoints of the api"
+  },
   "GET /api/articles": {
-    "description": "serves an array of all topics",
+    "description": "serves an array of all articles",
     "queries": ["author", "topic", "sort_by", "order"],
     "exampleResponse": {
       "articles": [
