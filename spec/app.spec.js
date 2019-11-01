@@ -199,6 +199,13 @@ describe("/api", () => {
           .then(({ body: { article } }) => expect(article.votes).to.equal(150));
       });
       describe("PATCH ERRORS:", () => {
+        it("200: Ignores request if no body passed", () => {
+          return request(app)
+            .patch("/api/articles/1")
+            .send()
+            .expect(200);
+          // .then(a => console.log(a));
+        });
         it("PATCH 400: Invalid ID", () => {
           return request(app)
             .patch("/api/articles/harry")
@@ -273,8 +280,8 @@ describe("/api", () => {
           .post("/api/articles/2/comments")
           .send(newComment)
           .expect(201)
-          .then(({ body: { comment } }) => {
-            expect(comment).to.contain.keys([
+          .then(({ body: { comments } }) => {
+            expect(comments).to.contain.keys([
               "comment_id",
               "author",
               "article_id",
@@ -384,15 +391,15 @@ describe("/api", () => {
           .get("/api/articles/1/comments?sort_by=votes")
           .expect(200)
           .then(({ body: { comments } }) => {
-            expect(comments).to.be.ascendingBy("votes");
+            expect(comments).to.be.descendingBy("votes");
           });
       });
-      it("200: Returns array sorted by created_at & ascending by default", () => {
+      it("200: Returns array sorted by created_at & descending by default", () => {
         return request(app)
           .get("/api/articles/1/comments")
           .expect(200)
           .then(({ body: { comments } }) => {
-            expect(comments).to.be.ascendingBy("created_at");
+            expect(comments).to.be.descendingBy("created_at");
           });
       });
       it("200: Returns array sorted by votes at in descending order", () => {
@@ -426,7 +433,7 @@ describe("/api", () => {
         it("404: Sort by unknown column", () => {
           return request(app)
             .get("/api/articles/1/comments?sort_by=notAColumn")
-            .expect(404)
+            .expect(400)
             .then(({ body: { msg } }) => {
               expect(msg).to.equal('column "notAColumn" does not exist');
             });
@@ -479,7 +486,7 @@ describe("/api", () => {
           .get("/api/articles?sort_by=votes")
           .expect(200)
           .then(({ body: { articles } }) => {
-            expect(articles).to.be.ascendingBy("votes");
+            expect(articles).to.be.descendingBy("votes");
           });
       });
       it("200: Sorts by date as default", () => {
@@ -487,15 +494,15 @@ describe("/api", () => {
           .get("/api/articles")
           .expect(200)
           .then(({ body: { articles } }) => {
-            expect(articles).to.be.ascendingBy("created_at");
+            expect(articles).to.be.descendingBy("created_at");
           });
       });
-      it("200: Sorts order is ascending by default ", () => {
+      it("200: Sorts order is descending by default ", () => {
         return request(app)
           .get("/api/articles?sort_by=votes")
           .expect(200)
           .then(({ body: { articles } }) => {
-            expect(articles).to.be.ascendingBy("votes");
+            expect(articles).to.be.descendingBy("votes");
           });
       });
       it("200: Sort order can be specified by descending", () => {
@@ -551,10 +558,10 @@ describe("/api", () => {
               expect(msg).to.equal("Error: invalid order");
             });
         });
-        it("404: Sort by column that doesn't exist", () => {
+        it("400: Sort by column that doesn't exist", () => {
           return request(app)
             .get("/api/articles?sort_by=not_a_column")
-            .expect(404)
+            .expect(400)
             .then(({ body: { msg } }) => {
               expect(msg).to.equal('column "not_a_column" does not exist');
             });

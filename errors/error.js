@@ -18,7 +18,7 @@ exports.psqlErrors = (err, req, res, next) => {
       res.status(404).send({ msg: createErrorMessage(err) });
       break;
     case "42703":
-      res.status(404).send({ msg: createErrorMessage(err) });
+      res.status(400).send({ msg: createErrorMessage(err) });
       break;
     default:
       next(err);

@@ -50,20 +50,39 @@ exports.selectArticleById = ({ article_id }) => {
     });
 };
 
-exports.updateArticleById = (article_id, { inc_votes }) => {
-  return connection
-    .select("*")
-    .from("articles")
-    .where(article_id)
-    .increment({ votes: inc_votes })
-    .returning("*")
-    .then(([article]) => {
-      if (!article) {
-        return Promise.reject({ status: 404, msg: "Error: ID not found" });
-      } else {
-        return article;
-      }
-    });
+exports.updateArticleById = (article_id, body) => {
+  // if (!inc_votes) {
+  //   inc_votes = 0;
+  // }
+
+  if (!Object.keys(body).length) {
+    return connection
+      .select("*")
+      .from("articles")
+      .where(article_id)
+      .returning("*")
+      .then(([article]) => {
+        if (!article) {
+          return Promise.reject({ status: 404, msg: "Error: ID not found" });
+        } else {
+          return article;
+        }
+      });
+  } else {
+    return connection
+      .select("*")
+      .from("articles")
+      .where(article_id)
+      .increment({ votes: body.inc_votes })
+      .returning("*")
+      .then(([article]) => {
+        if (!article) {
+          return Promise.reject({ status: 404, msg: "Error: ID not found" });
+        } else {
+          return article;
+        }
+      });
+  }
 };
 
 exports.insertCommentOnArticle = ({ article_id }, comment) => {
@@ -87,7 +106,7 @@ exports.selectCommentsByArticle = ({ article_id }, { sort_by, order }) => {
     .select("*")
     .where("article_id", article_id)
     .returning("*")
-    .orderBy(sort_by || "created_at", order || "asc");
+    .orderBy(sort_by || "created_at", order || "desc");
 
   return Promise.all([commentPromise, articleExists]).then(
     ([commentPromise, articleExists]) => {
@@ -113,7 +132,7 @@ exports.selectArticles = ({ sort_by, order, author, topic }) => {
     .from("articles")
     .count({ comment_count: "comment_id" })
     .leftJoin("comments", "articles.article_id", "comments.article_id")
-    .orderBy(sort_by || "created_at", order || "asc")
+    .orderBy(sort_by || "created_at", order || "desc")
     .groupBy("articles.article_id")
     .modify(query => {
       if (author) query.where("articles.author", author);
