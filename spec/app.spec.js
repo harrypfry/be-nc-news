@@ -264,9 +264,9 @@ describe("/api", () => {
   });
 
   describe("/articles/:article_id/comments", () => {
-    describe("POST:", () => {
+    describe.only("POST:", () => {
       const newComment = {
-        created_by: "icellusedkars",
+        username: "icellusedkars",
         body: "That was a rubbish article"
       };
       it("201: Post request responds with status code 201", () => {
@@ -296,7 +296,7 @@ describe("/api", () => {
           return request(app)
             .post("/api/articles/banana/comments")
             .send({
-              created_by: "icellusedkars",
+              username: "icellusedkars",
               body: "something interesting"
             })
             .expect(400)
@@ -310,7 +310,7 @@ describe("/api", () => {
           return request(app)
             .post("/api/articles/2/comments")
             .send({
-              created_by: "icellusedkars",
+              username: "icellusedkars",
               not_a_column: "something interesting"
             })
             .expect(400)
@@ -324,7 +324,7 @@ describe("/api", () => {
           return request(app)
             .post("/api/articles/2/comments")
             .send({
-              created_by: "notAUser",
+              username: "notAUser",
               body: "something not so interesting"
             })
             .expect(404)
@@ -338,7 +338,7 @@ describe("/api", () => {
           return request(app)
             .post("/api/articles/3324/comments")
             .send({
-              created_by: "icellusedkars",
+              username: "icellusedkars",
               body: "this is a valid body!"
             })
             .expect(404)
@@ -357,8 +357,8 @@ describe("/api", () => {
         return request(app)
           .get("/api/articles/5/comments")
           .expect(200)
-          .then(({ body: { comments } }) => {
-            // console.log(body);
+          .then(({ body }) => {
+            console.log(body);
             expect(comments).to.be.an("array");
           });
       });

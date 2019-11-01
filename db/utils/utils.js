@@ -31,6 +31,7 @@ exports.formatComments = (comments, articleRef) => {
     tempObj.body = comment.body;
     outputArr.push(tempObj);
   });
+  // console.log(outputArr);
   return outputArr;
 };
 
