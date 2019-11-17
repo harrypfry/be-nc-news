@@ -45,6 +45,25 @@ describe("/api", () => {
           });
       });
     });
+    describe("POST:", () => {
+      it("201: Post request returns posted topic", () => {
+        const newTopic = { description: "About Harry Fry", slug: "harry" };
+        return request(app)
+          .post("/api/topics")
+          .send(newTopic)
+          .expect(201)
+          .then(({ body: { topic } }) => {
+            expect(topic).to.have.keys(["description", "slug"]);
+          });
+      });
+      describe("POST ERRORS:", () => {
+        it("400: Invalid Body", () => {
+          return request(app)
+            .post("/api/topics")
+            .send({ description: "invalid body" }).expect(400).then(({body:{msg}})=>{expect(msg).to.equal('null value in column "slug" violates not-null constraint')});
+        });
+      });
+    });
     describe("GENERAL ERRORS:", () => {
       it("POST 405: Method not allowed", () => {
         return request(app)
@@ -53,6 +72,42 @@ describe("/api", () => {
           .then(({ body: { msg } }) => {
             expect(msg).to.equal("Error: Method not allowed");
           });
+      });
+    });
+  });
+
+  describe("/users", () => {
+    describe("POST:", () => {
+      it("201: Posts new user", () => {
+        const newUser = {
+          username: "harriusfrius",
+          name: "harry",
+          avatar_url: "www.picture.com"
+        };
+        return request(app)
+          .post("/api/users")
+          .send(newUser)
+          .expect(201)
+          .then(({ body: { user } }) => {
+            expect(user).to.contain.keys(["username", "avatar_url", "name"]);
+          });
+      });
+      describe("POST ERRORS:", () => {
+        it("POST 400: Invalid Body", () => {
+          const invalidUser = {
+            username: "harriusfrius",
+            avatar_url: "www.picture.com"
+          };
+          return request(app)
+            .post("/api/users")
+            .send(invalidUser)
+            .expect(400)
+            .then(({ body: { msg } }) => {
+              expect(msg).to.equal(
+                'null value in column "name" violates not-null constraint'
+              );
+            });
+        });
       });
     });
   });
@@ -246,6 +301,37 @@ describe("/api", () => {
             .then(({ body: { msg } }) => {
               expect(msg).to.equal("Error: ID not found");
             });
+        });
+      });
+    });
+
+    describe("DELETE:", () => {
+      it("204: Delete request deletes specified article", () => {
+        return request(app)
+          .delete("/api/articles/2")
+          .expect(204)
+          .then(({ body }) => {
+            expect(body).to.deep.equal({});
+          });
+      });
+      describe("DELETE ERRORS:", () => {
+        it("400: Invalid ID", () => {
+          return request(app)
+            .delete("/api/articles/harry")
+            .expect(400)
+            .then(({ body: { msg } }) =>
+              expect(msg).to.equal(
+                'invalid input syntax for type integer: "harry"'
+              )
+            );
+        });
+        it("404: ID not found", () => {
+          return request(app)
+            .delete("/api/articles/5435435")
+            .expect(404)
+            .then(({ body: { msg } }) =>
+              expect(msg).to.equal("Error:ID not found")
+            );
         });
       });
     });
@@ -583,6 +669,52 @@ describe("/api", () => {
       });
     });
 
+    describe("POST:", () => {
+      it("205: Posts new article ", () => {
+        const exampleArticle = {
+          title: "Harry's Article",
+          topic: "mitch",
+          author: "butter_bridge",
+          body: "Today Harry and Lorna drove to London",
+          votes: 123
+        };
+        return request(app)
+          .post("/api/articles")
+          .send(exampleArticle)
+          .expect(205)
+          .then(({ body }) => {
+            expect(body).to.contain.keys([
+              "article_id",
+              "title",
+              "body",
+              "votes",
+              "topic",
+              "author",
+              "created_at"
+            ]);
+          });
+      });
+
+      describe("POST ERRORS:", () => {
+        it("400: Invalid Body", () => {
+          const invalidBody = {
+            title: "Harry's Article",
+            topic: "mitch",
+            author: "butter_bridge"
+          };
+          return request(app)
+            .post("/api/articles")
+            .send(invalidBody)
+            .expect(400)
+            .then(({ text }) => {
+              expect(text).to.equal(
+                '{"msg":"null value in column \\"body\\" violates not-null constraint"}'
+              );
+            });
+        });
+      });
+    });
+
     describe("GENERAL ERRORS", () => {
       it("DELETE 405: Method not allowed", () => {
         return request(app)
@@ -609,9 +741,15 @@ describe("/api", () => {
           .patch("/api/comments/4")
           .send(votesInc)
           .expect(200)
-          .then(({ body: { comment: { votes } } }) => {
-            expect(votes).to.equal(-95);
-          });
+          .then(
+            ({
+              body: {
+                comment: { votes }
+              }
+            }) => {
+              expect(votes).to.equal(-95);
+            }
+          );
       });
       it("200: Patch request returns the updated comment", () => {
         return request(app)

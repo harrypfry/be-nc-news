@@ -16,6 +16,7 @@ const checkUserByUserName = username => {
       }
     });
 };
+
 const checkTopicExists = slug => {
   return connection("topics")
     .select("*")
@@ -81,6 +82,20 @@ exports.updateArticleById = (article_id, body) => {
   }
 };
 
+exports.removeArticleById = article_id => {
+  return connection("articles")
+    .where(article_id)
+    .del()
+    .returning("*")
+    .then(article => {
+      if (!article.length) {
+        return Promise.reject({ status: 404, msg: "Error:ID not found" });
+      } else {
+        return [];
+      }
+    });
+};
+
 exports.insertCommentOnArticle = ({ article_id }, comment) => {
   const commentObj = {
     article_id,
@@ -88,6 +103,10 @@ exports.insertCommentOnArticle = ({ article_id }, comment) => {
     author: comment.username
   };
   return connection("comments").insert(commentObj, "*");
+};
+
+exports.insertArticle = article => {
+  return connection("articles").insert(article, "*");
 };
 
 exports.selectCommentsByArticle = ({ article_id }, { sort_by, order }) => {

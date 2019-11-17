@@ -5,7 +5,9 @@ const {
   patchArticleById,
   postCommentOnArticle,
   getCommentsByArticle,
-  getArticles
+  getArticles,
+  postArticle,
+  deleteArticleById
 } = require("../controllers/article-controller");
 
 const { send405 } = require("../errors/error");
@@ -14,6 +16,7 @@ articleRouter
   .route("/:article_id")
   .get(getArticleById)
   .patch(patchArticleById)
+  .delete(deleteArticleById)
   .all(send405);
 
 articleRouter
@@ -25,6 +28,7 @@ articleRouter
 articleRouter
   .route("/")
   .get(getArticles)
+  .post(postArticle)
   .all(send405);
 
 module.exports = articleRouter;

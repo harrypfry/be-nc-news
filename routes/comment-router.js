@@ -1,6 +1,7 @@
 const {
   patchCommentById,
-  deleteCommentById
+  deleteCommentById,
+  postComment
 } = require("../controllers/comment-controller");
 
 const { send405 } = require("../errors/error");

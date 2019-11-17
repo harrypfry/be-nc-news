@@ -13,3 +13,7 @@ exports.selectUserByUserName = ({ params }) => {
       }
     });
 };
+
+exports.postUser = user => {
+  return connection("users").insert(user, "*");
+};

@@ -3,8 +3,18 @@ const {
   updateArticleById,
   insertCommentOnArticle,
   selectCommentsByArticle,
-  selectArticles
+  selectArticles,
+  insertArticle,
+  removeArticleById
 } = require("../models/article-model");
+
+exports.deleteArticleById = (req, res, next) => {
+  removeArticleById(req.params)
+    .then(article => {
+      res.status(204).send();
+    })
+    .catch(next);
+};
 
 exports.getArticleById = (req, res, next) => {
   selectArticleById(req.params)
@@ -42,6 +52,14 @@ exports.getArticles = (req, res, next) => {
   selectArticles(req.query)
     .then(articles => {
       res.status(200).send({ articles });
+    })
+    .catch(next);
+};
+
+exports.postArticle = (req, res, next) => {
+  insertArticle(req.body)
+    .then(([article]) => {
+      res.status(205).send(article);
     })
     .catch(next);
 };
