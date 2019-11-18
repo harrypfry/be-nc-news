@@ -60,14 +60,20 @@ describe("/api", () => {
         it("400: Invalid Body", () => {
           return request(app)
             .post("/api/topics")
-            .send({ description: "invalid body" }).expect(400).then(({body:{msg}})=>{expect(msg).to.equal('null value in column "slug" violates not-null constraint')});
+            .send({ description: "invalid body" })
+            .expect(400)
+            .then(({ body: { msg } }) => {
+              expect(msg).to.equal(
+                'null value in column "slug" violates not-null constraint'
+              );
+            });
         });
       });
     });
     describe("GENERAL ERRORS:", () => {
-      it("POST 405: Method not allowed", () => {
+      it("PATCH 405: Method not allowed", () => {
         return request(app)
-          .post("/api/topics")
+          .patch("/api/topics")
           .expect(405)
           .then(({ body: { msg } }) => {
             expect(msg).to.equal("Error: Method not allowed");
@@ -108,6 +114,17 @@ describe("/api", () => {
               );
             });
         });
+      });
+    });
+    describe("GET: ", () => {
+      it("200: Returns all users", () => {
+        return request(app)
+          .get("/api/users")
+          .expect(200)
+          .then(({ body }) => {
+            expect(body).to.be.an("array");
+            expect(body[0]).to.contain.keys(["username", "avatar_url", "name"]);
+          });
       });
     });
   });
@@ -337,9 +354,9 @@ describe("/api", () => {
     });
 
     describe("GENERAL ERRORS:", () => {
-      it("DELETE 405: Method not allowed", () => {
+      it("POST 405: Method not allowed", () => {
         return request(app)
-          .delete("/api/articles/2")
+          .post("/api/articles/2")
           .expect(405)
           .then(({ body: { msg } }) => {
             expect(msg).to.equal("Error: Method not allowed");

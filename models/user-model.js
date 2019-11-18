@@ -17,3 +17,7 @@ exports.selectUserByUserName = ({ params }) => {
 exports.postUser = user => {
   return connection("users").insert(user, "*");
 };
+
+exports.selectUsers = () => {
+  return connection.select("*").from("users");
+};
