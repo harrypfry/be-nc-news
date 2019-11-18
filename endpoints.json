@@ -52,14 +52,10 @@
     }
   },
   "DELETE /api/articles/:article_id": {
-    "description": "deletes article by ID",
-    "exampleResponse": {}
-    }
+    "description": "deletes article by ID"
   },
-
   "POST /api/articles/:article_id/comments": {
     "description": "serves an object of specified article",
-    "queries": [],
     "exampleResponse": {
       "comment": {
         "comment_id": 19,
@@ -161,13 +157,11 @@
   "POST /api/users": {
     "description": "posts new user",
     "exampleResponse": {
-      "users": 
-        {
-          "username": "icellusedkars",
-          "avatar_url": "www.dfs.com",
-          "name": "dfs"
-        }
-      
+      "users": {
+        "username": "icellusedkars",
+        "avatar_url": "www.dfs.com",
+        "name": "dfs"
+      }
     }
   },
 
