@@ -6,6 +6,12 @@
       "topics": [{ "slug": "football", "description": "Footie!" }]
     }
   },
+  "POST /api/topics": {
+    "description": "posts new topic",
+    "exampleResponse": {
+      "topics": { "slug": "football", "description": "Footie!" }
+    }
+  },
 
   "GET /api/users/:username": {
     "description": "serves an object of specified username",
@@ -43,6 +49,11 @@
         "created_at": "Timestamp",
         "votes": 150
       }
+    }
+  },
+  "DELETE /api/articles/:article_id": {
+    "description": "deletes article by ID",
+    "exampleResponse": {}
     }
   },
 
@@ -100,6 +111,20 @@
       ]
     }
   },
+  "POST /api/articles": {
+    "description": "posts new article",
+    "exampleResponse": {
+      "articles": [
+        {
+          "title": "Seafood substitutions are increasing",
+          "topic": "cooking",
+          "author": "weegembump",
+          "body": "Text from the article..",
+          "created_at": 1527695953341
+        }
+      ]
+    }
+  },
 
   "PATCH /api/comments/:comment_id": {
     "description": "updates comment with updated count of votes",
@@ -119,6 +144,31 @@
     "description": "deletes a comment",
     "queries": [],
     "exampleResponse": {}
+  },
+
+  "GET /api/users": {
+    "description": "serves an array of all users",
+    "exampleResponse": {
+      "users": [
+        {
+          "username": "icellusedkars",
+          "avatar_url": "www.dfs.com",
+          "name": "dfs"
+        }
+      ]
+    }
+  },
+  "POST /api/users": {
+    "description": "posts new user",
+    "exampleResponse": {
+      "users": 
+        {
+          "username": "icellusedkars",
+          "avatar_url": "www.dfs.com",
+          "name": "dfs"
+        }
+      
+    }
   },
 
   "GET /api": {
