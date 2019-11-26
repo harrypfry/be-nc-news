@@ -7,7 +7,7 @@ exports.selectUserByUserName = ({ params }) => {
     .where(params)
     .sumDistinct({ comment_score: "comments.votes" })
     .join("comments", "users.username", "comments.author")
-    .sum({ article_score: "articles.votes" })
+    .sumDistinct({ article_score: "articles.votes" })
     .join("articles", "users.username", "articles.author")
     .groupBy("users.username")
     .then(user => {
