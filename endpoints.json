@@ -56,6 +56,10 @@
   },
   "POST /api/articles/:article_id/comments": {
     "description": "serves an object of specified article",
+    "exampleRequest": {
+      "username": "icellusedkars",
+      "body": "this is a test comment"
+    },
     "exampleResponse": {
       "comment": {
         "comment_id": 19,
@@ -125,10 +129,6 @@
   "PATCH /api/comments/:comment_id": {
     "description": "updates comment with updated count of votes",
     "queries": [],
-    "exampleRequest": {
-      "author": "icellusedkars",
-      "body": "this is a test comment"
-    },
     "exampleResponse": {
       "comment": {
         "comment_id": 4,

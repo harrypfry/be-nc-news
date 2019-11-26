@@ -32,16 +32,28 @@ describe("/api", () => {
       it("200: Return all topics", () => {
         const expectedBody = {
           topics: [
-            { slug: "mitch", description: "The man, the Mitch, the legend" },
-            { slug: "cats", description: "Not dogs" },
-            { slug: "paper", description: "what books are made of" }
+            {
+              slug: "mitch",
+              description: "The man, the Mitch, the legend",
+              article_count: "0"
+            },
+            { slug: "cats", description: "Not dogs", article_count: "11" },
+            {
+              slug: "paper",
+              description: "what books are made of",
+              article_count: "1"
+            }
           ]
         };
         return request(app)
           .get("/api/topics")
           .expect(200)
-          .then(({ body }) => {
-            expect(body).to.deep.equal(expectedBody);
+          .then(({ body: { topics } }) => {
+            expect(topics[0]).to.contain.keys([
+              "slug",
+              "description",
+              "article_count"
+            ]);
           });
       });
     });
@@ -149,7 +161,13 @@ describe("/api", () => {
           .get("/api/users/icellusedkars")
           .expect(200)
           .then(({ body: { user } }) => {
-            expect(user).to.contain.keys(["username", "name", "avatar_url"]);
+            expect(user).to.contain.keys([
+              "username",
+              "name",
+              "avatar_url",
+              "comment_score",
+              "article_score"
+            ]);
           });
       });
       describe("GET ERRORS:", () => {
