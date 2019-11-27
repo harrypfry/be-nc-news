@@ -129,13 +129,19 @@ describe("/api", () => {
       });
     });
     describe("GET: ", () => {
-      it("200: Returns all users", () => {
+      it.only("200: Returns all users", () => {
         return request(app)
           .get("/api/users")
           .expect(200)
           .then(({ body }) => {
+            console.log(body)
             expect(body).to.be.an("array");
-            expect(body[0]).to.contain.keys(["username", "avatar_url", "name"]);
+            expect(body[0]).to.contain.keys([
+              "username",
+              "avatar_url",
+              "name",
+              "total_score"
+            ]);
           });
       });
     });
