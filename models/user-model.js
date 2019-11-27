@@ -7,7 +7,7 @@ exports.selectUserByUserName = ({ params }) => {
       .from("users")
       .where(params)
 
-      //=== HERE
+      //=== NOT SUMMING CORRECTLY
       .sumDistinct({ comment_score: "comments.votes" })
       .join("comments", "users.username", "comments.author")
       .sumDistinct({ article_score: "articles.votes" })
@@ -27,20 +27,19 @@ exports.postUser = user => {
   return connection("users").insert(user, "*");
 };
 
-exports.selectUsers = () => {
+exports.selectUsers = ({ limit }) => {
   return (
     connection
       .select("users.*")
       .from("users")
       .join("comments", "users.username", "comments.author")
 
-      //=== HERE
+      //=== HERE - SUM VOTES OF comments.votes & articles.votes
       // .sum({ sum: ["comments.votes", 4] })
 
       .sum({ total_score: "comments.votes" })
       .groupBy("users.username")
+      .orderBy("total_score", "desc")
+      .limit(limit || "1000")
   );
-  // .then(res => {
-  //   console.log(res);
-  // });
 };
