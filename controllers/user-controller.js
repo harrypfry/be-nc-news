@@ -21,7 +21,9 @@ exports.postUser = (req, res, next) => {
 };
 
 exports.getUsers = (req, res, next) => {
-  selectUsers(req.query).then(users => {
-    res.status(200).send(users);
-  });
+  selectUsers(req.query)
+    .then(users => {
+      res.status(200).send(users);
+    })
+    .catch(next);
 };

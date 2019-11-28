@@ -22,42 +22,21 @@ exports.selectUserByUserName = ({ params }) => {
     .leftJoin("articles", "users.username", "articles.author")
     .groupBy("users.username");
 
-  return Promise.all([
-    userPromise,
-    commentsVotesPromise,
-    articleVotesPromise
-  ]).then(([userPromise, [commentsVotesPromise], [articleVotesPromise]]) => {
-    const { avatar_url, name, username } = userPromise;
-    return {
-      avatar_url,
-      name,
-      username,
-      comment_score: commentsVotesPromise.comment_score,
-      article_score: articleVotesPromise.article_score
-    };
-  });
+  return Promise.all([userPromise, commentsVotesPromise, articleVotesPromise])
+    .then(([userPromise, [commentsVotesPromise], [articleVotesPromise]]) => {
+      const { avatar_url, name, username } = userPromise;
 
-  // return (
-  //   connection
-  //     .first("users.*")
-  //     .from("users")
-  //     .where(params)
-
-  //     //=== NOT SUMMING CORRECTLY
-
-  //     .sum({ comment_score: "comments.votes" })
-  //     .join("comments", "users.username", "comments.author")
-  //     // .sumDistinct({ article_score: "articles.votes" })
-  //     // .join("articles", "users.username", "articles.author")
-  //     .groupBy("users.username")
-  //     .then(user => {
-  //       if (!user) {
-  //         return Promise.reject({ status: 404, msg: "Error: User not found" });
-  //       } else {
-  //         return user;
-  //       }
-  //     })
-  // );
+      return {
+        avatar_url,
+        name,
+        username,
+        comment_score: commentsVotesPromise.comment_score,
+        article_score: articleVotesPromise.article_score
+      };
+    })
+    .catch(err => {
+      return Promise.reject({ status: 404, msg: "Error: User not found" });
+    });
 };
 
 exports.postUser = user => {
@@ -65,18 +44,45 @@ exports.postUser = user => {
 };
 
 exports.selectUsers = ({ limit }) => {
-  return (
-    connection
-      .select("users.*")
-      .from("users")
-      .join("comments", "users.username", "comments.author")
+  const usersPromise = connection.select("*").from("users");
 
-      //=== HERE - SUM VOTES OF comments.votes & articles.votes
-      // .sum({ sum: ["comments.votes", 4] }).raw()
+  const commentsVotesPromise = connection
+    .select("users.*")
+    .from("users")
+    .sum({ comment_score: "comments.votes" })
+    .leftJoin("comments", "users.username", "comments.author")
+    .groupBy("users.username");
 
-      .sum({ total_score: ["comments.votes", "articles.votes"] })
-      .groupBy("users.username")
-      .orderBy("total_score", "desc")
-      .limit(limit || "1000")
-  );
+  const articleVotesPromise = connection
+    .select("users.*")
+    .from("users")
+    .sum({ article_score: "articles.votes" })
+    .leftJoin("articles", "users.username", "articles.author")
+    .groupBy("users.username");
+
+  return Promise.all([
+    usersPromise,
+    commentsVotesPromise,
+    articleVotesPromise
+  ]).then(([usersPromise, commentsVotesPromise, articlesVotesPromise]) => {
+    const { username } = usersPromise;
+
+    let mergedScores = [];
+
+    for (let i = 0; i < commentsVotesPromise.length; i++) {
+      mergedScores.push({
+        ...commentsVotesPromise[i],
+        ...articlesVotesPromise.find(
+          itmInner => itmInner.username === commentsVotesPromise[i].username
+        )
+      });
+    }
+
+    mergedScores.forEach(user => {
+      user.total_score =
+        Number(user.comment_score) + Number(user.article_score);
+    });
+
+    return mergedScores;
+  });
 };

@@ -134,7 +134,6 @@ describe("/api", () => {
           .get("/api/users")
           .expect(200)
           .then(({ body }) => {
-            console.log(body);
             expect(body).to.be.an("array");
             expect(body[0]).to.contain.keys([
               "username",
@@ -162,12 +161,11 @@ describe("/api", () => {
             expect(user).to.be.an("object");
           });
       });
-      it.only("200: Returned user data has correct keys", () => {
+      it("200: Returned user data has correct keys", () => {
         return request(app)
           .get("/api/users/butter_bridge")
           .expect(200)
           .then(({ body: { user } }) => {
-            console.log(user);
             expect(user).to.contain.keys([
               "username",
               "name",
@@ -300,7 +298,6 @@ describe("/api", () => {
             .patch("/api/articles/1")
             .send()
             .expect(200);
-          // .then(a => console.log(a));
         });
         it("PATCH 400: Invalid ID", () => {
           return request(app)
