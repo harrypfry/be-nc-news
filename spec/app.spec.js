@@ -129,12 +129,12 @@ describe("/api", () => {
       });
     });
     describe("GET: ", () => {
-      it.only("200: Returns all users", () => {
+      it("200: Returns all users", () => {
         return request(app)
           .get("/api/users")
           .expect(200)
           .then(({ body }) => {
-            console.log(body)
+            console.log(body);
             expect(body).to.be.an("array");
             expect(body[0]).to.contain.keys([
               "username",
@@ -162,11 +162,12 @@ describe("/api", () => {
             expect(user).to.be.an("object");
           });
       });
-      it("200: Returned user data has correct keys", () => {
+      it.only("200: Returned user data has correct keys", () => {
         return request(app)
-          .get("/api/users/icellusedkars")
+          .get("/api/users/butter_bridge")
           .expect(200)
           .then(({ body: { user } }) => {
+            console.log(user);
             expect(user).to.contain.keys([
               "username",
               "name",

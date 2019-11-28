@@ -4,7 +4,7 @@ module.exports = [
       "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
     belongs_to: "They're not exactly dogs, are they?",
     created_by: "butter_bridge",
-    votes: 16,
+    votes: 14,
     created_at: 1511354163389
   },
   {
@@ -126,7 +126,7 @@ module.exports = [
     body: "This morning, I showered for nine minutes.",
     belongs_to: "Living in the shadow of a great man",
     created_by: "butter_bridge",
-    votes: 16,
+    votes: 0,
     created_at: 975242163389
   }
 ];
