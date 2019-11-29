@@ -51,7 +51,7 @@ exports.selectUsers = ({ limit }) => {
     .from("users")
     .sum({ comment_score: "comments.votes" })
     .leftJoin("comments", "users.username", "comments.author")
-    .groupBy("users.username");
+    .groupBy("users.username").orderBy;
 
   const articleVotesPromise = connection
     .select("users.*")
@@ -60,29 +60,35 @@ exports.selectUsers = ({ limit }) => {
     .leftJoin("articles", "users.username", "articles.author")
     .groupBy("users.username");
 
-  return Promise.all([
-    usersPromise,
-    commentsVotesPromise,
-    articleVotesPromise
-  ]).then(([usersPromise, commentsVotesPromise, articlesVotesPromise]) => {
-    const { username } = usersPromise;
+  return Promise.all([commentsVotesPromise, articleVotesPromise]).then(
+    ([commentsVotesPromise, articlesVotesPromise]) => {
+      let mergedScores = [];
 
-    let mergedScores = [];
+      for (let i = 0; i < commentsVotesPromise.length; i++) {
+        mergedScores.push({
+          ...commentsVotesPromise[i],
+          ...articlesVotesPromise.find(
+            itmInner => itmInner.username === commentsVotesPromise[i].username
+          )
+        });
+      }
 
-    for (let i = 0; i < commentsVotesPromise.length; i++) {
-      mergedScores.push({
-        ...commentsVotesPromise[i],
-        ...articlesVotesPromise.find(
-          itmInner => itmInner.username === commentsVotesPromise[i].username
-        )
+      mergedScores.forEach(user => {
+        user.total_score =
+          Number(user.comment_score) + Number(user.article_score);
       });
+
+      mergedScores.sort((a, b) => {
+        let comparison = 0;
+        if (a.total_score > b.total_score) {
+          comparison = 1;
+        } else if (a.total_score < b.total_score) {
+          comparison = -1;
+        }
+        return comparison;
+      });
+
+      return mergedScores;
     }
-
-    mergedScores.forEach(user => {
-      user.total_score =
-        Number(user.comment_score) + Number(user.article_score);
-    });
-
-    return mergedScores;
-  });
+  );
 };
