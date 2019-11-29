@@ -134,6 +134,7 @@ describe("/api", () => {
           .get("/api/users")
           .expect(200)
           .then(({ body }) => {
+            console.log(body);
             expect(body).to.be.an("array");
             expect(body[0]).to.contain.keys([
               "username",
@@ -141,6 +142,22 @@ describe("/api", () => {
               "name",
               "total_score"
             ]);
+          });
+      });
+      it("200: Ordered by total score", () => {
+        return request(app)
+          .get("/api/users")
+          .expect(200)
+          .then(({ body }) => {
+            expect(body).to.be.descendingBy("total_score");
+          });
+      });
+      it("200: Limits the length of returned array", () => {
+        return request(app)
+          .get("/api/users?limit=2")
+          .expect(200)
+          .then(({ body }) => {
+            expect(body.length).to.equal(2);
           });
       });
     });

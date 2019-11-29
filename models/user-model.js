@@ -44,14 +44,12 @@ exports.postUser = user => {
 };
 
 exports.selectUsers = ({ limit }) => {
-  const usersPromise = connection.select("*").from("users");
-
   const commentsVotesPromise = connection
     .select("users.*")
     .from("users")
     .sum({ comment_score: "comments.votes" })
     .leftJoin("comments", "users.username", "comments.author")
-    .groupBy("users.username").orderBy;
+    .groupBy("users.username");
 
   const articleVotesPromise = connection
     .select("users.*")
@@ -81,12 +79,16 @@ exports.selectUsers = ({ limit }) => {
       mergedScores.sort((a, b) => {
         let comparison = 0;
         if (a.total_score > b.total_score) {
-          comparison = 1;
-        } else if (a.total_score < b.total_score) {
           comparison = -1;
+        } else if (a.total_score < b.total_score) {
+          comparison = 1;
         }
         return comparison;
       });
+
+      if (limit && mergedScores.length > limit) {
+        mergedScores.splice(0, mergedScores.length - limit);
+      }
 
       return mergedScores;
     }
