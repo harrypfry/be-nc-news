@@ -731,8 +731,7 @@ describe("/api", () => {
           title: "Harry's Article",
           topic: "mitch",
           author: "butter_bridge",
-          body: "Today Harry and Lorna drove to London",
-          votes: 123
+          body: "Today Harry and Lorna drove to London"
         };
         return request(app)
           .post("/api/articles")
