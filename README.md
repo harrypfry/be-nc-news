@@ -11,9 +11,9 @@ Node.js, Express and PostgreSQL were used to build the application which will st
 - [Back End](https://nc-news-hf.herokuapp.com/api/users/)
 - [Front End](https://nc-news-hf.netlify.com/)
 
-##Getting Started
+## Getting Started
 
-###Prerequisites
+### Prerequisites
 
 This application uses npm v13.6.1, Node v12.6.0 and PostgreSQL v11.4. To verify you have the minimum versions of each installed, run the following commands on terminal
 
